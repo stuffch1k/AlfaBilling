@@ -1,10 +1,9 @@
-from fastapi import APIRouter
 from fastapi import APIRouter, Depends
 from starlette import status
 from starlette.responses import Response
 
 from ..schemas.token import TokenPairSchema
-from ...models import Client
+from src.auth.schemas.models import Client
 from ..services.token import TokenPairService
 from ..schemas.client import ClientSchema, ClientCreateSchema, ClientLoginSchema
 from ..services.client import AuthClientService

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from starlette import status
 from starlette.responses import Response
 
-from ...models import Operator
+from src.auth.schemas.models import Operator
 from ..services.token import TokenPairService
 from ..services.operator import AuthOperatorService
 from ..schemas.operator import OperatorSchema, OperatorCreateSchema, OperatorLoginSchema

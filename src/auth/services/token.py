@@ -7,7 +7,7 @@ from starlette import status
 
 from .client import AuthClientService
 from .operator import AuthOperatorService
-from ...models import Operator, Client
+from src.auth.schemas.models import Operator, Client
 from ..schemas.client import ClientSchema
 from ..schemas.operator import OperatorSchema
 from ..schemas.token import TokenPairSchema, TokenSchema, AccessTokenSchema, RefreshTokenSchema

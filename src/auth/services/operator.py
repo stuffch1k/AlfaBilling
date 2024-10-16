@@ -4,7 +4,7 @@ from starlette import status
 from ..schemas.operator import OperatorCreateSchema, OperatorSchema, OperatorLoginSchema
 from ..repositories.operator import OperatorRepository
 from ..utils import hash_password, verify_password
-from ...models import Operator
+from src.auth.schemas.models import Operator
 
 
 class AuthOperatorService:

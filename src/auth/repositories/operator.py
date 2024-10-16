@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from ...models import Operator
+from src.auth.schemas.models import Operator
 from ...database import database
 
 

@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from ...database import database
-from ...models import Client, PhoneNumber
+from src.auth.schemas.models import Client, PhoneNumber
 
 
 class ClientRepository:
