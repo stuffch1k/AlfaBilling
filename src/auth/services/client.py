@@ -3,8 +3,9 @@ from starlette import status
 
 from ..repositories.client import ClientRepository
 from ..schemas.client import ClientCreateSchema, ClientSchema, ClientLoginSchema
-from src.auth.schemas.models import Client, PhoneNumber
+from src.auth.schemas.models import Client
 from ..utils import verify_password, hash_password
+from ...number.schemas.models import PhoneNumber
 
 
 class AuthClientService:

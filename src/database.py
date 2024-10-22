@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, Engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from src.settings import settings
 
 
@@ -17,4 +17,5 @@ class Database:
 
 database = Database(url=settings.db_url.unicode_string())
 
+Base = declarative_base()
 

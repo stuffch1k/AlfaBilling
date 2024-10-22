@@ -1,38 +1,30 @@
 from typing import List
 
 from sqlalchemy import Text, Float, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, declarative_base, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-Base = declarative_base()
+from src.database import Base
 
 
 class Operator(Base):
-    __tablename__ = 'Operator'
-    Id: Mapped[int] = mapped_column(primary_key=True)
-    Name: Mapped[str] = mapped_column(Text, unique=False)
-    Surname: Mapped[str] = mapped_column(Text, unique=False)
-    Email: Mapped[str] = mapped_column(Text)
-    Hashed_password: Mapped[str] = mapped_column(Text)
+    __tablename__ = 'operator'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(Text, unique=False)
+    surname: Mapped[str] = mapped_column(Text, unique=False)
+    email: Mapped[str] = mapped_column(Text)
+    hashed_password: Mapped[str] = mapped_column(Text)
 
 
 class Client(Base):
-    __tablename__ = 'Client'
-    Id: Mapped[int] = mapped_column(primary_key=True)
-    Name: Mapped[str] = mapped_column(Text, unique=False)
-    Surname: Mapped[str] = mapped_column(Text, unique=False)
-    Patronymic: Mapped[str] = mapped_column(Text, unique=False)
-    Contract_number: Mapped[str] = mapped_column(Text, unique=True)
-    Passport: Mapped[str] = mapped_column(Text, unique=True)
-    Hashed_password: Mapped[str] = mapped_column(Text)
-    Numbers: Mapped[List["PhoneNumber"]] = relationship()
-
-
-class PhoneNumber(Base):
-    __tablename__ = 'Number'
-    Id: Mapped[int] = mapped_column(primary_key=True)
-    Phone_number: Mapped[str] = mapped_column(Text, unique=True)
-    Balance: Mapped[float] = mapped_column(Float, default=0.0)
-    Client_id: Mapped[int] = mapped_column(ForeignKey("Client.Id"))
+    __tablename__ = 'client'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(Text, unique=False)
+    surname: Mapped[str] = mapped_column(Text, unique=False)
+    patronymic: Mapped[str] = mapped_column(Text, unique=False)
+    contract_number: Mapped[str] = mapped_column(Text, unique=True)
+    passport: Mapped[str] = mapped_column(Text, unique=True)
+    hashed_password: Mapped[str] = mapped_column(Text)
+    numbers: Mapped[List["PhoneNumber"]] = relationship()
 
 
 

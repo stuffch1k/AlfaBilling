@@ -4,8 +4,17 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-from src.auth.schemas.models import Base as Auth_base
-from src.service.shemas.models import Base as Service_base
+
+# какой-то неприкольный баг алембика
+# пока не сделаешь импорт таблиц, метадата не разбирается
+from src.number.schemas.models import *
+from src.service.shemas.models import *
+from src.auth.schemas.models import *
+from src.transaction.schemas.models import *
+
+# импортируем общий контекст базы
+from src.database import Base
+
 from src.settings import settings
 
 # this is the Alembic Config object, which provides
@@ -22,8 +31,8 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
-target_metadata = [Auth_base.metadata, Service_base.metadata]
-
+# target_metadata = [NumberBase.metadata, ServiceBase.metadata, AuthBase.metadata]
+target_metadata = Base.metadata
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")

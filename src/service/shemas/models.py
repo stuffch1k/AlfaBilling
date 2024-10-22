@@ -1,7 +1,8 @@
 from sqlalchemy import String, Text, Integer, Float, ForeignKey, Boolean
-from sqlalchemy.orm import declarative_base, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
-Base = declarative_base()
+from src.database import Base
+
 
 class AdditionCategory(Base):
     '''
