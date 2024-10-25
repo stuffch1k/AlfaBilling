@@ -10,19 +10,19 @@ class ClientRepository:
         self.session = session
 
     def find_number(self, number: str) -> PhoneNumber:
-        number: PhoneNumber = self.session.query(PhoneNumber).filter(PhoneNumber.Phone_number == number).first()
+        number: PhoneNumber = self.session.query(PhoneNumber).filter(PhoneNumber.phone_number == number).first()
         return number
 
     def find_passport(self, passport: str) -> Client:
-        client: Client = self.session.query(Client).filter(Client.Passport == passport).first()
+        client: Client = self.session.query(Client).filter(Client.passport == passport).first()
         return client
 
     def find_contract(self, contract_number: str) -> Client:
-        client: Client = self.session.query(Client).filter(Client.Contract_number == contract_number).first()
+        client: Client = self.session.query(Client).filter(Client.contract_number == contract_number).first()
         return client
 
     def find_client_by_number(self, number: PhoneNumber) -> Client:
-        client: Client = self.session.query(Client).filter(Client.Id == number.Client_id).first()
+        client: Client = self.session.query(Client).filter(Client.id == number.client_id).first()
         return client
 
     def get_client_by_id(self, client_id: int) -> Client:

@@ -16,7 +16,7 @@ class OperatorRepository:
         self.session.refresh(operator)
 
     def find_operator_by_email(self, email: str) -> Operator | None:
-        operator = self.session.query(Operator).filter(Operator.Email == email).first()
+        operator = self.session.query(Operator).filter(Operator.email == email).first()
         return operator
 
     def get_operator_by_id(self, operator_id: int) -> Operator | None:

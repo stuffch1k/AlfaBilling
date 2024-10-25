@@ -5,6 +5,8 @@ from sqlalchemy import Text, Float, ForeignKey, Integer, Boolean, TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
+from src.transaction.schemas.models import Payment
+from src.transaction.schemas.models import WriteOff
 
 
 class PhoneNumber(Base):

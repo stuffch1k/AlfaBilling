@@ -1,8 +1,9 @@
 from typing import List
 
-from sqlalchemy import Text, Float, ForeignKey
+from sqlalchemy import Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from src.number.schemas.models import PhoneNumber
 from src.database import Base
 
 

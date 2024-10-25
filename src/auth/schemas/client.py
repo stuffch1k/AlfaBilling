@@ -2,26 +2,72 @@ from pydantic import BaseModel, ConfigDict
 
 
 class ClientBaseSchema(BaseModel):
-    Name: str
-    Surname: str
-    Patronymic: str
+    name: str
+    surname: str
+    patronymic: str
 
 
 class ClientCreateSchema(ClientBaseSchema):
-    Number: str
-    Contract_number: str
-    Passport: str
-    Password: str
+    """
+    Pydantic модель клиента для регистрации
+
+    Attributes
+    ----------
+    name: str
+        имя
+    surname: str
+        фамилия
+    patronymic: str
+        отчество
+    number: str
+        номер телефона
+    contract_number: str
+        номер договора
+    passport: str
+        номер паспорта
+    password: str
+        пароль
+    """
+    number: str
+    contract_number: str
+    passport: str
+    password: str
 
 
 class ClientLoginSchema(BaseModel):
-    Number: str
-    Password: str
+    """
+    Pydantic модель клиента для входа
+
+    Attributes
+    ----------
+    number: str
+        номер телефона
+    password: str
+        пароль
+    """
+    number: str
+    password: str
 
 
 class ClientSchema(ClientBaseSchema):
-    Id: int
-    Role: str = "client"
+    """
+    Pydantic модель клиента
+
+    Attributes
+    ----------
+    id: int
+        id клиента из бд
+    name: str
+        имя
+    surname: str
+        фамилия
+    patronymic: str
+        отчество
+    role: str
+        роль "client"
+    """
+    id: int
+    role: str = "client"
     model_config = ConfigDict(from_attributes=True)
 
 
