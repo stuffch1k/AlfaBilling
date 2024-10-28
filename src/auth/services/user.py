@@ -2,6 +2,7 @@ from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from starlette import status
 
+from .. import utils
 from ..services.token import AuthorizationToken
 from ...database import database as db
 from ..schemas.client import ClientSchema
@@ -40,5 +41,5 @@ def get_current_user(token_data: TokenPayloadSchema = Depends(AuthorizationToken
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail='Пользователь не найден')
     if isinstance(user, Operator):
-        return OperatorSchema.model_validate(user)
-    return ClientSchema.model_validate(user)
+        return utils.create_operator_data(user)
+    return utils.create_client_data(user, token_data.user_login_number)

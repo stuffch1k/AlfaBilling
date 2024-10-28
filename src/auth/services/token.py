@@ -7,11 +7,13 @@ from starlette import status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.requests import Request
 
+from .. import utils
 from ..services.auth import AuthService
 from ..schemas.models import Operator, Client
 from ..schemas.client import ClientSchema
 from ..schemas.operator import OperatorSchema
-from ..schemas.token import TokenPairSchema, TokenSchema, AccessTokenSchema, RefreshTokenSchema, TokenPayloadSchema
+from ..schemas.token import (TokenPairSchema, TokenSchema, AccessTokenSchema, RefreshTokenSchema, TokenPayloadSchema,
+TokenPayloadOperatorSchema, TokenPayloadClientSchema)
 from ...settings import settings
 
 
@@ -32,7 +34,9 @@ def validate_token(token: str) -> TokenPayloadSchema | HTTPException:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token expired"
             )
-        return TokenPayloadSchema.model_validate(payload)
+        if payload.get("user_role") == "operator":
+            return TokenPayloadOperatorSchema.model_validate(payload)
+        return TokenPayloadClientSchema.model_validate(payload)
 
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
@@ -89,18 +93,18 @@ class TokenPairService:
         if not user:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                 detail='Пользователь не найден')
-        return self.generate_token_pair(user)
+        if isinstance(user, Operator):
+            user_data: OperatorSchema = utils.create_operator_data(user)
+        else:
+            user_data: ClientSchema = utils.create_client_data(user, token_data.user_login_number)
+        return self.generate_token_pair(user_data)
 
-    def generate_token_pair(self, user: Operator | Client) -> TokenPairSchema:
+    def generate_token_pair(self, user_data: OperatorSchema | ClientSchema) -> TokenPairSchema:
         """
          Генерирует и возвращает пару refresh и access токенов для пользователя
-        :param user: модель оператора или клиента, для которого генерируется токен
+        :param user_data: pydantic модель оператора или клиента, для которого генерируется токен
         :return: пара access и refresh токенов для указанного пользователя
         """
-        if isinstance(user, Operator):
-            user_data = OperatorSchema.model_validate(user)
-        else:
-            user_data = ClientSchema.model_validate(user)
         access_token: str = self.generate_token(user_data, token_schema=AccessTokenSchema())
         refresh_token: str = self.generate_token(user_data, token_schema=RefreshTokenSchema())
         return TokenPairSchema(user=user_data, access_token=access_token, refresh_token=refresh_token)
@@ -138,7 +142,9 @@ class TokenPairService:
             user_id=user_data.id,
             user_role=user_data.role
         )
-        return payload
+        if isinstance(user_data, OperatorSchema):
+            return TokenPayloadOperatorSchema.from_payload(payload, user_data.email)
+        return TokenPayloadClientSchema.from_payload(payload, user_data.login_number)
 
 
 

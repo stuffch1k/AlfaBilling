@@ -63,3 +63,50 @@ class TokenPayloadSchema(BaseModel):
     exp: datetime
     user_id: int
     user_role: str
+
+
+class TokenPayloadClientSchema(TokenPayloadSchema):
+    """
+    Содержимое (payload) jwt токена для клиента
+
+    Attributes
+    ----------
+    user_login_number: str | None
+        номер пользователя, с которым он залогинился в последний раз
+    """
+    user_login_number: str = None
+
+    @classmethod
+    def from_payload(cls, payload: TokenPayloadSchema, number: str):
+        return TokenPayloadClientSchema(
+            token_type=payload.token_type,
+            iat=payload.iat,
+            exp=payload.exp,
+            user_id=payload.user_id,
+            user_role=payload.user_role,
+            user_login_number=number
+        )
+
+
+class TokenPayloadOperatorSchema(TokenPayloadSchema):
+    """
+    Содержимое (payload) jwt токена для оператора
+
+    Attributes
+    ----------
+    user_email: str = None
+        email оператора
+    """
+    user_email: str = None
+
+    @classmethod
+    def from_payload(cls, payload: TokenPayloadSchema, email: str):
+        return TokenPayloadOperatorSchema(
+            token_type=payload.token_type,
+            iat=payload.iat,
+            exp=payload.exp,
+            user_id=payload.user_id,
+            user_role=payload.user_role,
+            user_email=email
+        )
+

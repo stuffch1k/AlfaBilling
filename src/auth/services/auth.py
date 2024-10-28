@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException
 from starlette import status
 
+from .. import utils
 from ..repositories.operator import OperatorRepository
 from ..repositories.client import ClientRepository
 from ..schemas.models import Operator, Client, PhoneNumber
@@ -41,7 +42,7 @@ class AuthService:
                                 detail='Аккаунт с таким email уже существует')
         new_operator: Operator = self.create_operator_from_schema(operator_data)
         self.operator_repository.add_operator_to_db(new_operator)
-        return OperatorSchema.model_validate(new_operator)
+        return utils.create_operator_data(new_operator)
 
     def register_client(self, client_data: ClientCreateSchema) -> ClientSchema | HTTPException:
         """
@@ -62,9 +63,9 @@ class AuthService:
 
         new_client: Client = self.create_client_from_schema(client_data)
         self.client_repository.add_client_to_db(new_client)
-        return ClientSchema.model_validate(new_client)
+        return utils.create_client_data(new_client, client_data.number)
 
-    def authenticate_user(self, user_data: OperatorLoginSchema | ClientLoginSchema) -> Operator | Client:
+    def authenticate_user(self, user_data: OperatorLoginSchema | ClientLoginSchema) -> OperatorSchema | ClientSchema:
         """
         Аутентифицирует пользователя
         :param user_data: pydantic модель клиента или оператора для аутентификации
@@ -74,7 +75,7 @@ class AuthService:
             return self.authenticate_operator(user_data)
         return self.authenticate_client(user_data)
 
-    def authenticate_operator(self, operator_data: OperatorLoginSchema) -> Operator:
+    def authenticate_operator(self, operator_data: OperatorLoginSchema) -> OperatorSchema:
         """
         Проверяет соответсвие указанных почты и пароля с теми, которые лежат в бд
         :param operator_data: pydantic модель оператора для аутентификации
@@ -85,9 +86,9 @@ class AuthService:
         if not operator or not verify_password(operator_data.password, operator.hashed_password):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                 detail='Неверный email или пароль')
-        return operator
+        return utils.create_operator_data(operator)
 
-    def authenticate_client(self, client_data: ClientLoginSchema) -> Client:
+    def authenticate_client(self, client_data: ClientLoginSchema) -> ClientSchema:
         """
         Проверяет соответсвие указанных номера и пароля с теми, которые лежат в бд
         :param client_data: pydantic модель клиента для аутентификации
@@ -99,7 +100,7 @@ class AuthService:
         if not verify_password(client_data.password, client.hashed_password):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                 detail='Неверный пароль')
-        return client
+        return utils.create_client_data(client, client_data.number)
 
     def get_existing_operator_by_email(self, email: str) -> Operator | None:
         """
