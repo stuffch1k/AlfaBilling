@@ -57,6 +57,8 @@ class ClientSchema(ClientBaseSchema):
     ----------
     id: int
         id клиента из бд
+    login_number: str
+        номер
     name: str
         имя
     surname: str
@@ -67,6 +69,7 @@ class ClientSchema(ClientBaseSchema):
         роль "client"
     """
     id: int
+    login_number: str = None
     role: str = "client"
     model_config = ConfigDict(from_attributes=True)
 

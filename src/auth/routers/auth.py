@@ -5,14 +5,13 @@ from starlette.responses import Response
 
 from ..permissions import permissions
 from ..schemas.client import ClientSchema, ClientCreateSchema, ClientLoginSchema
-from ..schemas.models import Operator, Client
 from ..schemas.operator import OperatorLoginSchema, OperatorCreateSchema, OperatorSchema
 from ..schemas.token import TokenPairSchema
 from ..services.auth import AuthService
 from ..services.token import TokenPairService
 
 token_router = APIRouter(tags=["Auth"],
-                         dependencies=[Depends(permissions.allowOperator)])
+                         dependencies=[Depends(permissions.allowAnyAuthenticated)])
 
 auth_router = APIRouter(tags=["Auth"],
                         dependencies=[Depends(permissions.allowAll)])
@@ -30,7 +29,7 @@ def login(payload: ClientLoginSchema | OperatorLoginSchema,
           response: Response,
           service: AuthService = Depends(),
           token_service: TokenPairService = Depends()) -> dict:
-    authenticated_user: Client | Operator = service.authenticate_user(payload)
+    authenticated_user: OperatorSchema | ClientSchema = service.authenticate_user(payload)
     token_pair: TokenPairSchema = token_service.generate_token_pair(authenticated_user)
     response.set_cookie(key='refresh_token', value=token_pair.refresh_token,
                         max_age=3 * 24 * 60 * 60, httponly=True)
