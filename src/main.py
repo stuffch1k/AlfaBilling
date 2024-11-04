@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.auth import router as authRouter
 from src.service.routing.tarif import tarif_router
+from src.service.routing.addition_category import category_router
 
 def get_application() -> FastAPI:
     app = FastAPI(title="AlfaBilling", version="1.0.0", openapi_prefix= '/api')
@@ -17,6 +18,7 @@ def get_application() -> FastAPI:
 
     app.include_router(authRouter)
     app.include_router(tarif_router, prefix='/tarif')
+    app.include_router(category_router, prefix='/category')
     return app
 
 
