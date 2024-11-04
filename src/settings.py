@@ -1,7 +1,10 @@
 from pydantic import SecretStr, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import pathlib
 
-
+# region debug stuff
+env_file = f"{pathlib.Path(__file__).parents[1]}\\.env"
+# endregion
 class Settings(BaseSettings):
     jwt_secret: str
     jwt_algorithm: str
@@ -15,7 +18,7 @@ class Settings(BaseSettings):
     db_url: PostgresDsn | None = None
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf8"
+        env_file=env_file, env_file_encoding="utf8"
     )
 
     def __init__(self, **kwargs):

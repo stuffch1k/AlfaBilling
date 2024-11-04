@@ -9,7 +9,7 @@ class AdditionCategory(Base):
     Таблица Категории создается для фильтрации Дополнительных услуг.
     '''
     __tablename__ = 'addition_category'
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(260), unique=True)
 
 class Service(Base):
