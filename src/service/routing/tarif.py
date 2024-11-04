@@ -19,3 +19,12 @@ def get_tarif_list(service: TarifService = Depends(),
                    user = Depends(permissions.allowAll)):
     tarif_list = service.get_tarif_list()
     return tarif_list
+
+@tarif_router.get('/{name}', response_model=FullReadSchema)
+def get_tarif_by_name(name:str, service: TarifService = Depends(),
+                      user = Depends(permissions.allowAll)):
+    tarif = service.get_tarif_by_name(name)
+    return tarif
+
+
+

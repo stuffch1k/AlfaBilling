@@ -10,14 +10,23 @@ class TarifRepository:
         self.session = session
 
     def create_tarif(self, tarif: Tarif):
+        '''
+        Добавление записи тарифа
+        '''
         self.session.add(tarif)
         self.session.commit()
         self.session.refresh(tarif)
 
     def get_tarif_by_name(self, name: str):
+        '''
+        Select по названию тарифа
+        '''
         tarif = self.session.query(Tarif).filter(Tarif.name == name).first()
         return tarif
 
     def get_tarif_list(self):
+        '''
+        select *
+        '''
         tarif_list = self.session.query(Tarif).all()
         return tarif_list

@@ -9,6 +9,10 @@ class ServiceRepository:
         self.session = session
 
     def create_service_key(self) -> int:
+        '''
+        Создание сущности-родителя Service.
+        Возвращает свой PK для записи тарифов и услуг
+        '''
         service_key = Service()
         self.session.add(service_key)
         self.session.flush()
