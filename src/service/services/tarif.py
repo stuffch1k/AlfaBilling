@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException
 from src.service.repository.common_service import ServiceRepository
 from src.service.repository.tarif import TarifRepository
 from src.service.shemas.models import Tarif
-from src.service.shemas.tarif import CreateSchema
+from src.service.shemas.tarif import CreateSchema, ShortReadSchema
 
 
 class TarifService:
@@ -31,6 +31,10 @@ class TarifService:
             sms=parsed_tarif.sms
         )
         self.tarif_repository.create_tarif(tarif)
+
+    def get_tarif_list(self) -> list[ShortReadSchema]:
+        tarif_list = self.tarif_repository.get_tarif_list()
+        return tarif_list
 
     def is_existed(self, name: str) -> bool:
         tarif = self.tarif_repository.get_tarif_by_name(name)

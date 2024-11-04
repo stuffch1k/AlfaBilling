@@ -14,6 +14,8 @@ def create_tarif(tarif: CreateSchema,
                  user = Depends(permissions.allowAll)):
     service.create_tarif(tarif)
 
-@tarif_router.get('/')
-def get_tarif_list():
-    pass
+@tarif_router.get('/', response_model=list[ShortReadSchema])
+def get_tarif_list(service: TarifService = Depends(),
+                   user = Depends(permissions.allowAll)):
+    tarif_list = service.get_tarif_list()
+    return tarif_list

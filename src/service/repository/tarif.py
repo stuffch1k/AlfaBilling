@@ -17,3 +17,7 @@ class TarifRepository:
     def get_tarif_by_name(self, name: str):
         tarif = self.session.query(Tarif).filter(Tarif.name == name).first()
         return tarif
+
+    def get_tarif_list(self):
+        tarif_list = self.session.query(Tarif).all()
+        return tarif_list
