@@ -21,12 +21,10 @@ class TarifRepository:
         '''
         Select по названию тарифа
         '''
-        tarif = self.session.query(Tarif).filter(Tarif.name == name).first()
-        return tarif
+        return self.session.query(Tarif).filter(Tarif.name == name).first()
 
     def get_tarif_list(self):
         '''
         select *
         '''
-        tarif_list = self.session.query(Tarif).all()
-        return tarif_list
+        return self.session.query(Tarif).all()

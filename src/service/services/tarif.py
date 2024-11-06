@@ -12,7 +12,6 @@ class TarifService:
         self.service_repository = service_repository
         self.tarif_repository = tarif_repository
 
-
     def create_tarif(self, tarif: CreateSchema) -> None:
         '''
         Создание тарифа - служебный роут.
@@ -20,22 +19,12 @@ class TarifService:
         '''
         parsed_tarif: Tarif = Tarif(**tarif.dict())
         # name is unique, поэтому кидаем 500
-        if self.is_existed_name(parsed_tarif.name):
+        if self.is_existed_name(tarif.name):
             raise HTTPException(status_code=500,
-                                detail=f"Tarif with name {parsed_tarif.name} already exists")
+                                detail=f"Tarif with name {tarif.name} already exists")
         # берем pk aka fk от родиетльской сущности Service
         pk = self.service_repository.create_service_key()
-        tarif = Tarif(
-            service_id=pk,
-            name=parsed_tarif.name,
-            description=parsed_tarif.description,
-            price=parsed_tarif.price,
-            duration=parsed_tarif.duration,
-            internet=parsed_tarif.internet,
-            is_unlimited_internet=parsed_tarif.is_unlimited_internet,
-            minute=parsed_tarif.minute,
-            sms=parsed_tarif.sms
-        )
+        tarif = Tarif(service_id=pk, **tarif.dict())
         self.tarif_repository.create_tarif(tarif)
 
     def get_tarif_list(self) -> list[ShortReadSchema]:
@@ -45,8 +34,7 @@ class TarifService:
         Args:
             смотри ShortReadSchema
         '''
-        tarif_list = self.tarif_repository.get_tarif_list()
-        return tarif_list
+        return self.tarif_repository.get_tarif_list()
 
     def get_tarif_by_name(self, name: str) -> FullReadSchema:
         '''
@@ -59,8 +47,7 @@ class TarifService:
             raise HTTPException(status_code=500,
                                 detail=f"Probably invalid option 'name':"
                                        f"tarif with name {name} don't exist")
-        tarif = self.tarif_repository.get_tarif_by_name(name)
-        return tarif
+        return self.tarif_repository.get_tarif_by_name(name)
 
     def is_existed_name(self, name: str) -> bool:
         '''

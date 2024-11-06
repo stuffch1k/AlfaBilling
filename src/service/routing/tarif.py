@@ -7,7 +7,6 @@ from src.service.services.tarif import *
 
 tarif_router = APIRouter(tags=["Tarif"])
 
-
 @tarif_router.post('/')
 def create_tarif(tarif: CreateSchema,
                  service: TarifService = Depends(),
@@ -17,14 +16,12 @@ def create_tarif(tarif: CreateSchema,
 @tarif_router.get('/', response_model=list[ShortReadSchema])
 def get_tarif_list(service: TarifService = Depends(),
                    user = Depends(permissions.allowAll)):
-    tarif_list = service.get_tarif_list()
-    return tarif_list
+    return service.get_tarif_list()
 
 @tarif_router.get('/{name}', response_model=FullReadSchema)
 def get_tarif_by_name(name:str, service: TarifService = Depends(),
                       user = Depends(permissions.allowAll)):
-    tarif = service.get_tarif_by_name(name)
-    return tarif
+    return service.get_tarif_by_name(name)
 
 
 

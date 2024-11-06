@@ -49,7 +49,7 @@ class Addition(Service):
     __tablename__ = "addition"
     service_id: Mapped[int] = mapped_column(ForeignKey("service.id"), primary_key=True, autoincrement=False)
     # наследуемые поля
-    name: Mapped[str] = mapped_column(String(260), unique=True)
+    name: Mapped[str] = mapped_column(String(260))
     description: Mapped[str] = mapped_column(Text)
     price: Mapped[float] = mapped_column(Float)
     duration: Mapped[int] = mapped_column(Integer)

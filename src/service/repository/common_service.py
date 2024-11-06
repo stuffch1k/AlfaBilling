@@ -17,5 +17,5 @@ class ServiceRepository:
         self.session.add(service_key)
         self.session.flush()
         self.session.refresh(service_key)
-        pk = service_key.id
-        return pk
+        return service_key.id
+

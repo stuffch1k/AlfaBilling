@@ -21,22 +21,16 @@ class AdditionRepository:
         '''
         Select по названию Доп услуги
         '''
-        addition = self.session.query(Addition).filter(Addition.name == name).first()
-        return addition
+        return self.session.query(Addition).filter(Addition.name == name).first()
 
     def get_addition_list(self):
         '''
         select *
         '''
-        addition_list = self.session.query(Addition).all()
-        return addition_list
+        return self.session.query(Addition).all()
 
     def get_addition(self, id: int):
         return self.session.query(Addition).filter(Addition.service_id == id).first()
 
     def get_categorial_list_by_id(self, id: int):
-        additions = self.session.query(Addition).filter(Addition.category_id == id).all()
-        return additions
-
-
-
+        return self.session.query(Addition).filter(Addition.category_id == id).all()

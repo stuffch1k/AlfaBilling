@@ -20,19 +20,17 @@ class CategoryRepository:
         '''
         Select по id
         '''
-        category = self.session.query(AdditionCategory).filter(AdditionCategory.id == id).first()
-        return category
+        return self.session.query(AdditionCategory).filter(AdditionCategory.id == id).first()
+
 
     def get_category_by_name(self, name: str):
         '''
         Select по name
         '''
-        category = self.session.query(AdditionCategory).filter(AdditionCategory.name == name).first()
-        return category
+        return self.session.query(AdditionCategory).filter(AdditionCategory.name == name).first()
 
     def get_category_list(self):
         '''
         select *
         '''
-        category_list = self.session.query(AdditionCategory).all()
-        return category_list
+        return self.session.query(AdditionCategory).all()
