@@ -17,11 +17,11 @@ class AdditionRepository:
         self.session.commit()
         self.session.refresh(addition)
 
-    def get_addition_by_name(self, name: str):
+    def get_addition_by_id(self, id: int):
         '''
-        Select по названию Доп услуги
+        Select по ID Доп услуги
         '''
-        return self.session.query(Addition).filter(Addition.name == name).first()
+        return self.session.query(Addition).filter(Addition.service_id == id).first()
 
     def get_addition_list(self):
         '''

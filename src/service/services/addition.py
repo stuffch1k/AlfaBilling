@@ -34,10 +34,14 @@ class AdditionService:
         return self.addition_repository.get_categorial_list_by_id(category_id)
 
     def get_addition(self, id: int) -> FullReadSchema:
+        if not self.is_existed_id(id):
+            raise HTTPException(status_code=500,
+                                detail=f"Probably incorrect id:"
+                                       f"Addition with PK {id} doesn't exist")
         return self.addition_repository.get_addition(id)
 
-    def is_existed_name(self, name: str) -> bool:
-        addition = self.addition_repository.get_addition_by_name(name)
+    def is_existed_id(self, id: int) -> bool:
+        addition = self.addition_repository.get_addition_by_id(id)
         if addition:
             return True
         else:
