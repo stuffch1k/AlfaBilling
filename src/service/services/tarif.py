@@ -36,24 +36,24 @@ class TarifService:
         '''
         return self.tarif_repository.get_tarif_list()
 
-    def get_tarif_by_name(self, name: str) -> FullReadSchema:
-        '''
-        Подробная информации о тарифе в карточке
-        Args:
-            FullReadSchema
-        '''
-        # name is unique, поэтому кидаем 500
-        if not self.is_existed_name(name):
+    def get_tarif_by_id(self, id: int) -> FullReadSchema:
+        if not self.is_existed_id(id):
             raise HTTPException(status_code=500,
-                                detail=f"Probably invalid option 'name':"
-                                       f"tarif with name {name} don't exist")
-        return self.tarif_repository.get_tarif_by_name(name)
+                                detail="Incorrect option ID")
+        return self.tarif_repository.get_tarif_by_id(id)
 
     def is_existed_name(self, name: str) -> bool:
         '''
         Хэлпер, проверяем существует ли тариф с таким именем
         '''
         tarif = self.tarif_repository.get_tarif_by_name(name)
+        if tarif:
+            return True
+        else:
+            return False
+
+    def is_existed_id(self, id: int) -> bool:
+        tarif = self.tarif_repository.get_tarif_by_id(id)
         if tarif:
             return True
         else:
