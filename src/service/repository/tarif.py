@@ -26,6 +26,11 @@ class TarifRepository:
         '''
         return self.session.query(Tarif).all()
 
+    def update_tarif(self, id: int, tarif):
+        self.session.query(Tarif).filter(Tarif.service_id == id).update(tarif)
+        self.session.commit()
+        self.session.flush()
+
     def get_tarif_by_id(self, id: int) -> Tarif:
         return self.session.query(Tarif).filter(Tarif.service_id == id).first()
 

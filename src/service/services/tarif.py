@@ -42,6 +42,17 @@ class TarifService:
                                 detail="Incorrect option ID")
         return self.tarif_repository.get_tarif_by_id(id)
 
+    def update_tarif(self, id: int, tarif: UpdateSchema) -> None:
+        if not self.is_existed_id(id):
+            raise HTTPException(status_code=500,
+                                detail="Incorrect option ID")
+        tarif_old = self.tarif_repository.get_tarif_by_id(id)
+        # tarif_old.internet = tarif.internet
+        # tarif_old.is_unlimited_internet = tarif.is_unlimited_internet
+        # tarif_old.minute = tarif.minute
+        # tarif_old.sms = tarif.sms
+        return self.tarif_repository.update_tarif(id, tarif.__dict__)
+
     def is_existed_name(self, name: str) -> bool:
         '''
         Хэлпер, проверяем существует ли тариф с таким именем

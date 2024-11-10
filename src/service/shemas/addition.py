@@ -12,6 +12,11 @@ class CreateSchema(ShortReadSchema):
     duration: int
     category_id: int
 
+class UpdateSchema(BaseModel):
+    price: float
+    amount: float
+    is_unlimited: bool
+    description: str
 
 class FullReadSchema(CreateSchema):
     pass

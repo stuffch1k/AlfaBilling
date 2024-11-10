@@ -11,14 +11,15 @@ class CreateSchema(BaseModel):
     minute: int
     sms: int
 
-
-class ShortReadSchema(BaseModel):
-    name: str
+class UpdateSchema(BaseModel):
     price: float
     internet: int
     is_unlimited_internet: bool
     minute: int
     sms: int
+
+class ShortReadSchema(UpdateSchema):
+    name: str
 
 class FullReadSchema(CreateSchema):
     pass

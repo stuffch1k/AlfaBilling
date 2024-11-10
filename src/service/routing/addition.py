@@ -31,5 +31,11 @@ def get_addition(addition_id: int,
                 user = Depends(permissions.allowAll)):
     return service.get_addition(addition_id)
 
+@addition_router.patch('/{id}')
+def update_addition(addition_id: int,
+                    addition_data: UpdateSchema,
+                    service: AdditionService = Depends(),
+                    user=Depends(permissions.allowAll)):
+    return service.update_addition(addition_id, addition_data)
 
 

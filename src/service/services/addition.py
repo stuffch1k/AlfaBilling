@@ -33,6 +33,12 @@ class AdditionService:
                                 detail=f"Category with pk {category_id} doesn't exist")
         return self.addition_repository.get_categorial_list_by_id(category_id)
 
+    def update_addition(self, id: int, payload: UpdateSchema):
+        if not self.is_existed_id(id):
+            raise HTTPException(status_code=500,
+                                detail=f"Probably incorrect id:"
+                                       f"Addition with PK {id} doesn't exist")
+        return self.addition_repository.update_addition(id, payload.__dict__)
     def get_addition(self, id: int) -> FullReadSchema:
         if not self.is_existed_id(id):
             raise HTTPException(status_code=500,

@@ -23,3 +23,9 @@ def get_tarif_by_name(id: int, service: TarifService = Depends(),
                       user = Depends(permissions.allowAll)):
     return service.get_tarif_by_id(id)
 
+@tarif_router.patch('/{id}')
+def update_tarif(id: int, tarif: UpdateSchema,
+                 service: TarifService = Depends(),
+                 user = Depends(permissions.allowAll)):
+    return service.update_tarif(id, tarif)
+

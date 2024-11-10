@@ -29,6 +29,10 @@ class AdditionRepository:
         '''
         return self.session.query(Addition).all()
 
+    def update_addition(self, id: int, addition):
+        self.session.query(Addition).filter(Addition.service_id == id).update(addition)
+        self.session.commit()
+        self.session.flush()
     def get_addition(self, id: int):
         return self.session.query(Addition).filter(Addition.service_id == id).first()
 
