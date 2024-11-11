@@ -1,3 +1,4 @@
+import redis
 from sqlalchemy import create_engine, Engine
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from src.settings import settings
@@ -16,6 +17,12 @@ class Database:
 
 
 database = Database(url=settings.db_url.unicode_string())
-
+redis_db = redis.Redis(
+    host=settings.redis_host,
+    port=settings.redis_port,
+    username=settings.redis_username,
+    password=settings.redis_password,
+    decode_responses=True
+)
 Base = declarative_base()
 
