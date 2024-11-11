@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     db_host: str
     db_port: int
     db_url: PostgresDsn | None = None
+    redis_host: str
+    redis_port: int
+    redis_username: str
+    redis_password: str
 
     model_config = SettingsConfigDict(
         env_file=env_file, env_file_encoding="utf8"
