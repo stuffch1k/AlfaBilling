@@ -19,3 +19,8 @@ class ServiceRepository:
         self.session.refresh(service_key)
         return service_key.id
 
+    def existed_id(self, id: int):
+        '''
+        Проверяем есть ли услга с данным id
+        '''
+        return self.session.query(Service).filter(Service.id == id).first()
