@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.auth import router as authRouter
-from src.number.routing.number import activated_router
+from src.number.routing.number import activated_router, number_router
 from src.service.routing.tarif import tarif_router
 from src.service.routing.addition_category import category_router
 from src.service.routing.addition import addition_router
@@ -22,7 +22,8 @@ def get_application() -> FastAPI:
     app.include_router(tarif_router, prefix='/tarif')
     app.include_router(category_router, prefix='/category')
     app.include_router(addition_router, prefix='/addition')
-    app.include_router(activated_router, prefix='/number')
+    app.include_router(activated_router, prefix='/activated')
+    app.include_router(number_router, prefix='/number')
     return app
 
 

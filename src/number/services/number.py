@@ -1,19 +1,29 @@
 from fastapi import Depends, HTTPException
 
 from src.number.repository.number import NumberRepository
-from src.number.schemas.models import Activated
+from src.number.repository.rest import RestRepository
+from src.number.schemas.models import Activated, Rest
 from src.number.schemas.number import AddServiceSchema
+from src.service.repository.addition import AdditionRepository
+from src.service.repository.addition_category import CategoryRepository
 from src.service.repository.common_service import ServiceRepository
 from src.service.repository.tarif import TarifRepository
+from src.service.shemas.models import Tarif, Addition
 
 
 class NumberService:
     def __init__(self, service_repository: ServiceRepository = Depends(ServiceRepository),
                  number_repository: NumberRepository = Depends(NumberRepository),
-                 tarif_repository: TarifRepository = Depends(TarifRepository)):
+                 tarif_repository: TarifRepository = Depends(TarifRepository),
+                 addition_repository: AdditionRepository = Depends(AdditionRepository),
+                 rest_repository: RestRepository = Depends(RestRepository),
+                 category_repository: CategoryRepository = Depends(CategoryRepository)):
         self.service_repository = service_repository
         self.number_repository = number_repository
         self.tarif_repository = tarif_repository
+        self.addition_repository = addition_repository
+        self.rest_repository = rest_repository
+        self.category_repository = category_repository
 
     def add_service(self, body: AddServiceSchema):
         if not self.existed_id(body.service_id):
@@ -22,13 +32,30 @@ class NumberService:
         if not self.existed_number(body.phone_number):
             raise HTTPException(status_code=500,
                                 detail=f"Number {body.phone_number} doesn't exist")
-        if self.is_tarif(body.service_id) and self.already_has_tarif(body.service_id):
+
+        is_tarif = self.is_tarif(body.service_id)
+        if is_tarif and self.already_has_tarif(body.service_id):
             raise HTTPException(status_code=500,
                                 detail=f"Number {body.phone_number} already has active tarif."
                                        f"Wanna change it?")
+
         number_id = self.get_number_id(body.phone_number)
+        if is_tarif:
+            self.add_rest(number_id,
+                                 self.tarif_repository.get_tarif_by_id(body.service_id))
+        else:
+            self.add_rest(number_id,
+                                 self.addition_repository.get_addition_by_id(body.service_id))
         self.number_repository.add_service(
             Activated(service_id=body.service_id, number_id=number_id))
+
+    def get_rests(self, number: str):
+        if not self.existed_number(number):
+            raise HTTPException(status_code=500,
+                                detail=f"Number {number} doesn't exist")
+        number_id = self.get_number_id(number)
+        return self.rest_repository.get_rests(number_id)
+
 
     def existed_id(self, service_id: int):
         id = self.service_repository.existed_id(service_id)
@@ -60,5 +87,37 @@ class NumberService:
         tarif_list = set(self.tarif_repository.get_tarifs_id())
         activated_ = set(self.number_repository.activated_list())
         tarif_id = tarif_list & activated_
-        return True if tarif_id is not None else False
+        return bool(tarif_id)
+
+
+    def add_rest(self, number_id: int, body: Tarif | Addition):
+        rest = Rest()
+        if type(body) is Tarif:
+            rest = Rest(number_id=number_id, internet=body.internet,
+                        is_unlimited_internet=body.is_unlimited_internet,
+                        minute=body.minute,
+                        sms=body.sms)
+        else:
+            category_name = self.category_repository.get_category_by_id(body.category_id)
+            rests = self.rest_repository.get_rests(number_id)
+            match category_name.name:
+                case "internet":
+                    rest.internet = body.amount + rests.internet if rests is not None else 0
+                    rest.minute = 0
+                    rest.sms = 0
+                case "minute":
+                    rest.minute = body.amount + rests.minute if rests is not None else 0
+                    rest.internet = 0
+                    rest.sms = 0
+                case "sms":
+                    rest.sms = body.amount + rests.sms if rests is not None else 0
+                    rest.internet = 0
+                    rest.minute = 0
+                case _:
+                    rest.sms = 0
+                    rest.internet = 0
+                    rest.minute = 0
+            rest.is_unlimited_internet = body.is_unlimited
+            rest.number_id = number_id
+        self.rest_repository.add_or_update(rest)
 
