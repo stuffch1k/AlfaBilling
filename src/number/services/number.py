@@ -25,14 +25,22 @@ class NumberService:
         self.rest_repository = rest_repository
         self.category_repository = category_repository
 
-    def add_service(self, body: AddServiceSchema):
+    def add_service(self, body: AddServiceSchema) -> None:
+        '''
+        Подключение услуги или тарифа
+        Args:
+            number: str
+            service_id: int
+        Returns None if 200 OK or raise possible exception
+        '''
         if not self.existed_id(body.service_id):
             raise HTTPException(status_code=500,
                                 detail=f"Service with pk {body.service_id} doesn't exist")
         if not self.existed_number(body.phone_number):
             raise HTTPException(status_code=500,
                                 detail=f"Number {body.phone_number} doesn't exist")
-
+        # проверяем, подключен ли у чипсика уже тариф
+        # при этом дубли услуг подключать можно (5 пакетов по 1гб доп инета)
         is_tarif = self.is_tarif(body.service_id)
         if is_tarif and self.already_has_tarif(body.service_id):
             raise HTTPException(status_code=500,
@@ -40,6 +48,7 @@ class NumberService:
                                        f"Wanna change it?")
 
         number_id = self.get_number_id(body.phone_number)
+        # идем добавлять то, что подключили к остаткам
         if is_tarif:
             self.add_rest(number_id,
                                  self.tarif_repository.get_tarif_by_id(body.service_id))
@@ -87,20 +96,30 @@ class NumberService:
         tarif_list = set(self.tarif_repository.get_tarifs_id())
         activated_ = set(self.number_repository.activated_list())
         tarif_id = tarif_list & activated_
+        # пустой сет != None фанфакт
         return bool(tarif_id)
 
 
     def add_rest(self, number_id: int, body: Tarif | Addition):
+        '''
+        Добавляет то, что пришло к остаткам у абонента
+        '''
         rest = Rest()
+        # если подключен тариф - просто вливаем тариф
+        # остатки при подключении или обновлении тарифа не переносим
         if type(body) is Tarif:
             rest = Rest(number_id=number_id, internet=body.internet,
                         is_unlimited_internet=body.is_unlimited_internet,
                         minute=body.minute,
                         sms=body.sms)
         else:
+            # если подключена доп услуга
+            # вычисляем категорию услуги
             category_name = self.category_repository.get_category_by_id(body.category_id)
+            # получаем старые остатки
             rests = self.rest_repository.get_rests(number_id)
             match category_name.name:
+                # исходя из категории плюсуем, тк пришло amount
                 case "internet":
                     rest.internet = body.amount + rests.internet if rests is not None else 0
                     rest.minute = 0
@@ -114,6 +133,7 @@ class NumberService:
                     rest.internet = 0
                     rest.minute = 0
                 case _:
+                    # в случае различных роумингов, подписок, надо делать отдельный флаг
                     rest.sms = 0
                     rest.internet = 0
                     rest.minute = 0

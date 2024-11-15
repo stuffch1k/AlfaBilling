@@ -4,6 +4,11 @@ from src.auth.permissions import permissions
 from src.number.schemas.number import AddServiceSchema
 from src.number.services.number import NumberService
 
+'''
+idk насколько нужно разделять эти роуты,
+но у остатков будет как минимум еще один эндпоинт
+'''
+
 activated_router = APIRouter(tags=["Activated service"])
 number_router = APIRouter(tags=["Number"])
 
