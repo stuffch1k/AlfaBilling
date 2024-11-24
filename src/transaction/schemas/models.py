@@ -13,6 +13,7 @@ class WriteOff(Base):
     '''
     __tablename__ = 'write_off'
     id: Mapped[int] = mapped_column(primary_key=True)
+    # цена - idk почему не прайс
     amount: Mapped[str] = mapped_column(Float, default=0)
     date: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.utcnow)
     activated_id: Mapped[int] = mapped_column(ForeignKey("activated.id"))

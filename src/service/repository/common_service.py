@@ -24,3 +24,6 @@ class ServiceRepository:
         Проверяем есть ли услга с данным id
         '''
         return self.session.query(Service).filter(Service.id == id).first()
+
+    def get_service_price(self, service_id: int):
+        pass

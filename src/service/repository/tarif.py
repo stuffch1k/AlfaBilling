@@ -43,3 +43,5 @@ class TarifRepository:
     def get_tarifs_id(self) -> list[int]:
         return self.session.query(Tarif.service_id).all()
 
+    def get_tarif_price(self, tarif_id: int) -> float:
+        return self.session.query(Tarif.price).filter(Tarif.service_id == tarif_id).first()

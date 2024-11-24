@@ -38,3 +38,8 @@ class AdditionRepository:
 
     def get_categorial_list_by_id(self, id: int):
         return self.session.query(Addition).filter(Addition.category_id == id).all()
+
+    def get_addition_price(self, addition_id: int):
+        return self.session.query(Addition.price).filter(Addition.service_id == addition_id).first()
+
+

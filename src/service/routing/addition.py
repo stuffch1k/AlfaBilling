@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends
 
 from src.auth.permissions import permissions
 from src.service.services.addition import AdditionService
-from src.service.services.common_service import Service
 from src.service.shemas.addition import *
 from src.service.shemas.category import ChooseSchema
 

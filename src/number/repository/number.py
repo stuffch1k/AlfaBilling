@@ -9,15 +9,31 @@ class NumberRepository:
         self.session = session
 
     def existed_number(self, number: str):
-        return self.session.query(PhoneNumber).filter(PhoneNumber.phone_number == number).first()
+        return self.session.query(PhoneNumber).\
+            filter(PhoneNumber.phone_number == number).first()
 
     def get_number_id(self, number: str) -> int:
-        return self.session.query(PhoneNumber).filter(PhoneNumber.phone_number == number).first().id
+        return self.session.query(PhoneNumber).\
+            filter(PhoneNumber.phone_number == number).first().id
 
-    def add_service(self, activated: Activated):
+    def add_service(self, activated: Activated) -> int:
         self.session.add(activated)
         self.session.commit()
         self.session.refresh(activated)
+        return activated.id
 
     def activated_list(self) -> list[int]:
         return self.session.query(Activated.service_id).all()
+
+    def decrease_balance(self, number_id: int, price: float):
+        balance = self.session.query(PhoneNumber).filter(PhoneNumber.id == number_id).first().balance
+        self.session.query(PhoneNumber).\
+            filter(PhoneNumber.id == number_id).update({'balance': balance - price})
+        self.session.commit()
+
+    def get_service_by_activated(self, activated_id: int):
+        return self.session.query(Activated).filter_by(id=activated_id).service_id
+
+    def get_number_by_id(self, number_id: int):
+        return self.session.query(PhoneNumber).filter_by(id=number_id).first()
+

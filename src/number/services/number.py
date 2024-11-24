@@ -9,7 +9,8 @@ from src.service.repository.addition_category import CategoryRepository
 from src.service.repository.common_service import ServiceRepository
 from src.service.repository.tarif import TarifRepository
 from src.service.shemas.models import Tarif, Addition
-
+from src.transaction.services.write_off import WriteOffService
+from src.transaction.repository.write_off import WrifeOffRepository
 
 class NumberService:
     def __init__(self, service_repository: ServiceRepository = Depends(ServiceRepository),
@@ -17,13 +18,15 @@ class NumberService:
                  tarif_repository: TarifRepository = Depends(TarifRepository),
                  addition_repository: AdditionRepository = Depends(AdditionRepository),
                  rest_repository: RestRepository = Depends(RestRepository),
-                 category_repository: CategoryRepository = Depends(CategoryRepository)):
+                 category_repository: CategoryRepository = Depends(CategoryRepository),
+                 write_off_repository: WrifeOffRepository = Depends(WrifeOffRepository)):
         self.service_repository = service_repository
         self.number_repository = number_repository
         self.tarif_repository = tarif_repository
         self.addition_repository = addition_repository
         self.rest_repository = rest_repository
         self.category_repository = category_repository
+        self.write_off_repository = write_off_repository
 
     def add_service(self, body: AddServiceSchema) -> None:
         '''
@@ -48,15 +51,24 @@ class NumberService:
                                        f"Wanna change it?")
 
         number_id = self.get_number_id(body.phone_number)
+        price = 0
         # идем добавлять то, что подключили к остаткам
         if is_tarif:
+            _tarif = self.tarif_repository.get_tarif_by_id(body.service_id)
             self.add_rest(number_id,
-                                 self.tarif_repository.get_tarif_by_id(body.service_id))
+                                 _tarif)
+            price = _tarif.price
         else:
+            _addition = self.addition_repository.get_addition_by_id(body.service_id)
             self.add_rest(number_id,
-                                 self.addition_repository.get_addition_by_id(body.service_id))
-        self.number_repository.add_service(
+                                 _addition)
+            price = _addition.price
+        activated_id = self.number_repository.add_service(
             Activated(service_id=body.service_id, number_id=number_id))
+
+        write_off_service = WriteOffService(self.number_repository, self.write_off_repository)
+        write_off_service.create_write_off(number_id, activated_id, price)
+
 
     def get_rests(self, number: str):
         if not self.existed_number(number):
