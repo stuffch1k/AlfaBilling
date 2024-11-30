@@ -26,10 +26,19 @@ class NumberRepository:
         return self.session.query(Activated.service_id).all()
 
     def decrease_balance(self, number_id: int, price: float):
-        balance = self.session.query(PhoneNumber).filter(PhoneNumber.id == number_id).first().balance
+        balance = self.get_balance(number_id)
         self.session.query(PhoneNumber).\
             filter(PhoneNumber.id == number_id).update({'balance': balance - price})
         self.session.commit()
+
+    def increase_balance(self, number_id: int, amount: float):
+        balance = self.get_balance(number_id)
+        self.session.query(PhoneNumber). \
+            filter(PhoneNumber.id == number_id).update({'balance': balance + amount})
+        self.session.commit()
+
+    def get_balance(self, number_id: int):
+        return self.session.query(PhoneNumber).filter(PhoneNumber.id == number_id).first().balance
 
     def get_service_by_activated(self, activated_id: int):
         return self.session.query(Activated).filter_by(id=activated_id).service_id

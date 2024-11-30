@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from src.number.repository.number import NumberRepository
 from src.transaction.repository.write_off import WrifeOffRepository
 from fastapi import Depends, HTTPException
@@ -23,6 +25,7 @@ class WriteOffService:
         if self.number_repository.get_number_by_id(body.number_id) is None:
             raise HTTPException(status_code=500,
                                 detail=f"Number with pk {body.number_id} doesn't exist")
+        body.date_end += timedelta(seconds=20)
         write_off = self.write_off_repository.get_write_off(body)
         # service_id = self.number_repository.get_service_by_activated(write_off.activated_id)
         # _service_name = get_service_name(service_id)

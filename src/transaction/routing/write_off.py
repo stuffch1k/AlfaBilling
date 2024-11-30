@@ -15,3 +15,7 @@ def get_write_off(body: DateFilterSchema, service: WriteOffService = Depends(),
     Юзер только свои.
     """
     return service.get_write_off(body)
+
+@write_off_router.post("/script")
+def emulate_write_off():
+    pass

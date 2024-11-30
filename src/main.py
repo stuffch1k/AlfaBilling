@@ -6,6 +6,7 @@ from src.number.routing.number import activated_router, number_router
 from src.service.routing.tarif import tarif_router
 from src.service.routing.addition_category import category_router
 from src.service.routing.addition import addition_router
+from src.transaction.routing.payment import payment_router
 from src.transaction.routing.write_off import write_off_router
 
 def get_application() -> FastAPI:
@@ -26,6 +27,7 @@ def get_application() -> FastAPI:
     app.include_router(activated_router, prefix='/activated')
     app.include_router(number_router, prefix='/number')
     app.include_router(write_off_router, prefix='/write_off')
+    app.include_router(payment_router, prefix = "/payment")
     return app
 
 
