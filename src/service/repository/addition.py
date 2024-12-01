@@ -40,6 +40,9 @@ class AdditionRepository:
         return self.session.query(Addition).filter(Addition.category_id == id).all()
 
     def get_addition_price(self, addition_id: int):
-        return self.session.query(Addition.price).filter(Addition.service_id == addition_id).first()
+        return self.session.query(Addition).\
+            filter(Addition.service_id == addition_id).first().price
 
-
+    def get_addition_duration(self, addition_id: int):
+        return self.session.query(Addition).\
+            filter(Addition.service_id == addition_id).first().duration

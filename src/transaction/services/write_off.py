@@ -34,3 +34,13 @@ class WriteOffService:
             result.append(ReadSchema(price=e.amount, date=e.date, activated_id=e.activated_id))
         return result
 
+    def create_write_off_list(self, services: list[tuple], prices: dict):
+        for service in services:
+            _price = prices[service[1]]
+            _number_id = service[2]
+            self.number_repository.decrease_balance(_number_id, _price)
+            write_off = WriteOff(amount=_price, activated_id=service[0],
+                                 number_id=_number_id)
+            self.write_off_repository.create_write_off(write_off)
+
+
