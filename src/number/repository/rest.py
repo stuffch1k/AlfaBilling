@@ -30,3 +30,28 @@ class RestRepository:
 
     def get_rests(self, number_id: int):
         return self.session.query(Rest).filter(Rest.number_id == number_id).first()
+
+    def get_all_rows(self):
+        return self.session.query(Rest).all()
+
+    def decrease_internet(self, _num_id: int, amount: int):
+        self.session.query(Rest).filter_by(number_id=_num_id).update({"internet": amount})
+        self.session.commit()
+        self.session.flush()
+
+    def decrease_minute(self, _num_id: int, amount: int):
+        self.session.query(Rest).filter_by(number_id=_num_id).update({"minute": amount})
+        self.session.commit()
+        self.session.flush()
+
+    def decrease_sms(self, _num_id: int, amount: int):
+        self.session.query(Rest).filter_by(number_id=_num_id).update({"sms": amount})
+        self.session.commit()
+        self.session.flush()
+
+    def decrease_all(self, _id: int, internet: int, minute: int, sms: int):
+        self.session.query(Rest).filter_by(id=_id).\
+            update({"internet": internet, "minute": minute, "sms": sms})
+        self.session.commit()
+        self.session.flush()
+
