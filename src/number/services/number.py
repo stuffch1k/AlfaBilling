@@ -45,7 +45,7 @@ class NumberService:
         # проверяем, подключен ли у чипсика уже тариф
         # при этом дубли услуг подключать можно (5 пакетов по 1гб доп инета)
         is_tarif = self.is_tarif(body.service_id)
-        if is_tarif and self.already_has_tarif(body.service_id):
+        if is_tarif and self.already_has_tarif(self.get_number_id(body.phone_number)):
             raise HTTPException(status_code=500,
                                 detail=f"Number {body.phone_number} already has active tarif."
                                        f"Wanna change it?")
@@ -99,14 +99,14 @@ class NumberService:
         tarif = self.tarif_repository.get_tarif_by_id(service_id)
         return True if tarif is not None else False
 
-    def already_has_tarif(self, service_id: int) -> bool:
+    def already_has_tarif(self, number_id: int) -> bool:
         '''
         Check if client already has activated tarif
         Предполгаю
         Не может быть подключено несоклько тарифов на номере
         '''
         tarif_list = set(self.tarif_repository.get_tarifs_id())
-        activated_ = set(self.number_repository.activated_list())
+        activated_ = set(self.number_repository.activated_list(number_id))
         tarif_id = tarif_list & activated_
         # пустой сет != None фанфакт
         return bool(tarif_id)

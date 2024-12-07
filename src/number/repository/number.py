@@ -22,8 +22,8 @@ class NumberRepository:
         self.session.refresh(activated)
         return activated.id
 
-    def activated_list(self) -> list[int]:
-        return self.session.query(Activated.service_id).all()
+    def activated_list(self, _number_id: int) -> tuple[int]:
+        return self.session.query(Activated.service_id).filter_by(number_id=_number_id).all()
 
     def decrease_balance(self, number_id: int, price: float):
         balance = self.get_balance(number_id)
