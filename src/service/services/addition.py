@@ -24,8 +24,8 @@ class AdditionService:
         addition = Addition(service_id=pk, **addition.dict())
         self.addition_repository.create_addition(addition)
 
-    def get_addition_list(self) -> list[ShortReadSchema]:
-        return self.addition_repository.get_addition_list()
+    def get_addition_list(self, page, size) -> list[ShortReadSchema]:
+        return self.addition_repository.get_addition_list(page, size)
 
     def get_categorial_list(self, category_id: int):
         if not self.category_repository.get_category_by_id(category_id):

@@ -23,11 +23,13 @@ class AdditionRepository:
         '''
         return self.session.query(Addition).filter(Addition.service_id == id).first()
 
-    def get_addition_list(self):
+    def get_addition_list(self, page, size):
         '''
         select *
         '''
-        return self.session.query(Addition).all()
+        offset_value = (page - 1) * size
+        query = self.session.query(Addition).limit(size).offset(offset_value)
+        return query.all()
 
     def update_addition(self, id: int, addition):
         self.session.query(Addition).filter(Addition.service_id == id).update(addition)
