@@ -1,7 +1,21 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from enum import Enum
 
 from src.number.schemas.activated import ActivatedServiceSchema
 from src.number.schemas.rest import RestSchema
+
+
+class Choice(str, Enum):
+    internet = 'internet'
+    minute = 'minute'
+    sms = 'sms'
+    all = 'all'
+
+
+class ChoiceSchema(BaseModel):
+    choice: Choice = Field(default=Choice.all)
+    class Config:
+        use_enum_values = True
 
 
 class AddServiceSchema(BaseModel):
@@ -25,3 +39,4 @@ class NumberInfoSchema(BaseModel):
 class DeactivateServiceSchema(BaseModel):
     activated_id: int
     phone_number: str
+

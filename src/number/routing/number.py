@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 
 from src.auth.permissions import permissions
-from src.number.schemas.number import AddServiceSchema, DeactivateServiceSchema
+from src.number.schemas.number import AddServiceSchema, DeactivateServiceSchema, ChoiceSchema
 from src.number.services.activated import ActivatedService
 from src.number.services.number import NumberService
+from src.number.services.rest import RestService
 
 '''
 idk насколько нужно разделять эти роуты,
@@ -13,11 +14,10 @@ idk насколько нужно разделять эти роуты,
 activated_router = APIRouter(tags=["Activated service"])
 number_router = APIRouter(tags=["Number"])
 
-
 @activated_router.post("/")
 def add_service(schema: AddServiceSchema,
                 service: NumberService = Depends(),
-                user=Depends(permissions.allowAll)):
+                user = Depends(permissions.allowAll)):
     return service.add_service(schema)
 
 
@@ -55,6 +55,18 @@ def get_rests(number: str,
                 service: NumberService = Depends(),
                 user = Depends(permissions.allowAll)):
     return service.get_rests(number)
+
+@number_router.post("/rest/script")
+def decrease_rests(choice: ChoiceSchema, service: RestService = Depends()):
+    """
+    Выбрать опцию что понижаем
+        - internet
+        - minute
+        - sms
+        - all = DEFAULT
+    """
+    return service.decrease_rests(choice)
+
 
 
 @number_router.get("/{number_id}/activated")
