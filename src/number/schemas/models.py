@@ -41,7 +41,8 @@ class Activated(Base):
     __tablename__ = "activated"
     id: Mapped[int] = mapped_column(primary_key=True)
     activation_date: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.utcnow)
-    expiration_date: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.utcnow()+timedelta(days=30))
+    expiration_date: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.utcnow()+timedelta(days=30),
+                                                      nullable=True)
     service_id: Mapped[int] = mapped_column(ForeignKey("service.id"))
     number_id: Mapped[int] = mapped_column(ForeignKey("number.id"))
 

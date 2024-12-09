@@ -46,3 +46,26 @@ class NumberRepository:
     def get_number_by_id(self, number_id: int):
         return self.session.query(PhoneNumber).filter_by(id=number_id).first()
 
+    def deactivate_service(self, activated: Activated):
+        activated.expiration_date = None
+        self.session.add(activated)
+        self.session.commit()
+
+    def get_all_numbers(self, page, size):
+        offset_value = (page - 1) * size
+        query = (self.session.query(PhoneNumber).order_by(PhoneNumber.client_id.desc()).limit(size).offset(offset_value))
+        return query.all()
+
+    def get_activated_by_id(self, activated_id) -> Activated | None:
+        return self.session.query(Activated).get(activated_id)
+
+    def get_activated_by_id_and_number(self, activated_id, number_id) -> Activated | None:
+        return self.session.query(Activated).filter(Activated.id == activated_id
+                                                    and Activated.number_id == number_id).first()
+
+    def get_all_activated(self, number_id) -> list[Activated]:
+        return self.session.query(Activated).filter(Activated.number_id == number_id).all()
+
+    def get_number_by_str_representation(self, number: str):
+        return self.session.query(PhoneNumber).filter(PhoneNumber.phone_number == number).first()
+

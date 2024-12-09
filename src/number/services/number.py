@@ -1,9 +1,12 @@
 from fastapi import Depends, HTTPException
+from starlette import status
 
+from src.number.schemas.activated import ActivatedServiceSchema, ActivatedTarifShortSchema, \
+    ActivatedAdditionShortSchema, ActivatedTarifFullSchema, ActivatedAdditionFullSchema
 from src.number.repository.number import NumberRepository
 from src.number.repository.rest import RestRepository
-from src.number.schemas.models import Activated, Rest
-from src.number.schemas.number import AddServiceSchema
+from src.number.schemas.models import Activated, Rest, PhoneNumber
+from src.number.schemas.number import AddServiceSchema, DeactivateServiceSchema, NumberInfoSchema
 from src.service.repository.addition import AdditionRepository
 from src.service.repository.addition_category import CategoryRepository
 from src.service.repository.common_service import ServiceRepository
@@ -11,6 +14,7 @@ from src.service.repository.tarif import TarifRepository
 from src.service.shemas.models import Tarif, Addition
 from src.transaction.services.write_off import WriteOffService
 from src.transaction.repository.write_off import WrifeOffRepository
+
 
 class NumberService:
     def __init__(self, service_repository: ServiceRepository = Depends(ServiceRepository),
@@ -56,12 +60,12 @@ class NumberService:
         if is_tarif:
             _tarif = self.tarif_repository.get_tarif_by_id(body.service_id)
             self.add_rest(number_id,
-                                 _tarif)
+                          _tarif)
             price = _tarif.price
         else:
             _addition = self.addition_repository.get_addition_by_id(body.service_id)
             self.add_rest(number_id,
-                                 _addition)
+                          _addition)
             price = _addition.price
         activated_id = self.number_repository.add_service(
             Activated(service_id=body.service_id, number_id=number_id))
@@ -69,14 +73,12 @@ class NumberService:
         write_off_service = WriteOffService(self.number_repository, self.write_off_repository)
         write_off_service.create_write_off(number_id, activated_id, price)
 
-
     def get_rests(self, number: str):
         if not self.existed_number(number):
             raise HTTPException(status_code=500,
                                 detail=f"Number {number} doesn't exist")
         number_id = self.get_number_id(number)
         return self.rest_repository.get_rests(number_id)
-
 
     def existed_id(self, service_id: int):
         id = self.service_repository.existed_id(service_id)
@@ -110,7 +112,6 @@ class NumberService:
         tarif_id = tarif_list & activated_
         # пустой сет != None фанфакт
         return bool(tarif_id)
-
 
     def add_rest(self, number_id: int, body: Tarif | Addition):
         '''
@@ -153,3 +154,80 @@ class NumberService:
             rest.number_id = number_id
         self.rest_repository.add_or_update(rest)
 
+    def deactivate_service(self, body: DeactivateServiceSchema):
+        if not self.existed_number(body.phone_number):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"Number {body.phone_number} doesn't exist")
+        number_id = self.number_repository.get_number_id(body.phone_number)
+        activated = self.number_repository.get_activated_by_id_and_number(body.activated_id, number_id)
+        if not activated:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"There is no activated service with id {body.activated_id} "
+                                       f"on number {body.phone_number}")
+        is_tarif = self.is_tarif(activated.service_id)
+        if is_tarif:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail=f"You can't deactivate tarif")
+        self.number_repository.deactivate_service(activated)
+
+    def get_activated_services(self, number_id: int) -> tuple[
+        ActivatedServiceSchema | None, list[ActivatedServiceSchema]]:
+        activated_tarif = None
+        activated_additions = []
+        activated_services = self.number_repository.get_all_activated(number_id)
+        for activated_service in activated_services:
+            service_schema = self.create_activated_service_schema(activated_service)
+            if isinstance(service_schema.service, ActivatedTarifShortSchema):
+                activated_tarif = service_schema
+                continue
+            activated_additions.append(service_schema)
+        return activated_tarif, activated_additions
+
+    def get_activated_service_by_id(self, activated_id) -> ActivatedServiceSchema:
+        activated_service: Activated = self.number_repository.get_activated_by_id(activated_id)
+        if not activated_service:
+            raise HTTPException(status_code=404,
+                                detail=f"There is no activated service with id {activated_id}")
+        return self.create_activated_service_schema(activated_service, full=True)
+
+    def create_activated_service_schema(self, activated_service: Activated, full=False) -> ActivatedServiceSchema:
+        service_schema = ActivatedServiceSchema.model_validate(activated_service)
+        service_schema.activated_id = activated_service.id
+        is_tarif = self.is_tarif(activated_service.service_id)
+        if is_tarif:
+            _service = self.tarif_repository.get_tarif_by_id(activated_service.service_id)
+            if full:
+                service_schema.service = ActivatedTarifFullSchema.model_validate(_service)
+            else:
+                service_schema.service = ActivatedTarifShortSchema.model_validate(_service)
+        else:
+            _service = self.addition_repository.get_addition_by_id(activated_service.service_id)
+            if full:
+                service_schema.service = ActivatedAdditionFullSchema.model_validate(_service)
+            else:
+                service_schema.service = ActivatedAdditionShortSchema.model_validate(_service)
+        return service_schema
+
+    def get_activated_tarif(self, number_id):
+        activated = self.get_activated_services(number_id)
+        tarif = activated[0]
+        if tarif:
+            return tarif.service
+        return tarif
+
+    def get_all_numbers(self, page, size):
+        return self.number_repository.get_all_numbers(page, size)
+
+    def get_number_info(self, number_str: str) -> NumberInfoSchema:
+        number: PhoneNumber = self.get_number_by_str_representation(number_str)
+        rests = self.get_rests(number.phone_number)
+        activated = self.get_activated_services(number.id)
+        return NumberInfoSchema(id=number.id,
+                                client_id=number.client_id,
+                                balance=number.balance,
+                                rests=rests,
+                                activated_tarif=activated[0],
+                                activated_additions=activated[1])
+
+    def get_number_by_str_representation(self, number: str) -> PhoneNumber:
+        return self.number_repository.get_number_by_str_representation(number)
