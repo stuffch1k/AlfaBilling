@@ -31,7 +31,7 @@ class NumberInfoSchema(BaseModel):
     id: int
     client_id: int
     balance: float = None
-    rests: RestSchema = None
+    rests: RestSchema | None = None
     activated_tarif: ActivatedServiceSchema | None = None
     activated_additions: list[ActivatedServiceSchema] = None
 
