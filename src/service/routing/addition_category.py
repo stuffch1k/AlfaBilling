@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from src.auth.permissions import permissions
 from src.service.services.addition_category import CategoryService
-from src.service.shemas.category import CreateSchema, ReadSchema
+from src.service.shemas.category import CreateSchema, ReadSchema, FullReadSchema
 
 category_router = APIRouter(tags=["Addition Category"])
 
@@ -13,7 +13,7 @@ def create_category(category: CreateSchema,
                  user = Depends(permissions.allowAll)):
     service.create_category(category)
 
-@category_router.get('/', response_model=list[ReadSchema])
+@category_router.get('/', response_model=list[FullReadSchema])
 def get_category_list(service: CategoryService = Depends(),
                    user = Depends(permissions.allowAll)):
     category_list = service.get_category_list()

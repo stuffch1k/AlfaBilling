@@ -1,13 +1,16 @@
 from fastapi import Depends, HTTPException
 
+from src.service.repository.addition import AdditionRepository
 from src.service.repository.addition_category import CategoryRepository
 from src.service.shemas.category import *
 from src.service.shemas.models import AdditionCategory
 
 
 class CategoryService:
-    def __init__(self, category_repository: CategoryRepository = Depends(CategoryRepository)):
+    def __init__(self, category_repository: CategoryRepository = Depends(CategoryRepository),
+                 addition_repository: AdditionRepository = Depends(AdditionRepository)):
         self.category_repository = category_repository
+        self.addition_repository = addition_repository
 
     def create_category(self, category: CreateSchema) -> None:
         '''
@@ -22,14 +25,22 @@ class CategoryService:
 
         self.category_repository.create_category(parsed_category)
 
-    def get_category_list(self) -> list[ReadSchema]:
+    def get_category_list(self) -> list[FullReadSchema]:
         '''
         Возвращает перечень категорий.
         Args:
             смотри ReadSchema
         '''
         category_list = self.category_repository.get_category_list()
-        return category_list
+        result = []
+        for category in category_list:
+            _count = len(self.addition_repository.get_categorial_list_by_id(category.id))
+            ans = FullReadSchema(id=category.id,
+                                 name=category.name,
+                                 count=_count,
+                                 ru_name=TYPES[category.name])
+            result.append(ans)
+        return result
 
     def get_category(self, id: int) -> ReadSchema:
         '''
