@@ -8,6 +8,7 @@ from src.service.routing.addition_category import category_router
 from src.service.routing.addition import addition_router
 from src.transaction.routing.payment import payment_router
 from src.transaction.routing.write_off import write_off_router
+from src.transaction.routing.transaction import transaction_router
 from src.user.routing.operator import operator_router
 from src.user.routing.main import main_router, client_router
 
@@ -28,6 +29,7 @@ def get_application() -> FastAPI:
     app.include_router(addition_router, prefix='/addition')
     app.include_router(activated_router, prefix='/activated')
     app.include_router(number_router, prefix='/number')
+    app.include_router(transaction_router, prefix='/transaction')
     app.include_router(write_off_router, prefix='/write_off')
     app.include_router(payment_router, prefix = "/payment")
     app.include_router(operator_router,prefix='/operator')

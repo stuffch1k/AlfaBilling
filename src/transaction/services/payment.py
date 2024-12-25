@@ -3,7 +3,7 @@ from src.transaction.repository.payment import PaymentRepository
 from fastapi import Depends, HTTPException
 from datetime import timedelta
 from src.transaction.schemas.models import Payment
-from src.transaction.schemas.payment import CreateSchema, DateFilterSchema, ReadSchema
+from src.transaction.schemas.payment import *
 
 
 class PaymentService:
@@ -19,7 +19,7 @@ class PaymentService:
         self.payment_repository.create_payment(Payment(**body.__dict__))
         self.number_repository.increase_balance(body.number_id, body.amount)
 
-    def get_payments(self, body: DateFilterSchema) -> list[ReadSchema]:
+    def get_payments(self, body: DateFilterSchema) -> list[FullReadSchema]:
         if self.number_repository.get_number_by_id(body.number_id) is None:
             raise HTTPException(status_code=500,
                                 detail=f"Number with pk {body.number_id} doesn't exist")
@@ -27,6 +27,7 @@ class PaymentService:
         payments = self.payment_repository.get_payments(body)
         result = []
         for payment in payments:
-            result.append(ReadSchema(amount=payment.amount, date=payment.date))
+            result.append(FullReadSchema(amount=payment.amount, date=payment.date))
         return result
+
 

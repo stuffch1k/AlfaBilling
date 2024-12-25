@@ -6,13 +6,6 @@ from src.service.repository.tarif import TarifRepository
 from src.service.services.tarif import TarifService
 
 
-def get_service_name(service_id: int):
-    tarif_repository = TarifRepository()
-    tarif = tarif_repository.get_tarif_by_id(service_id)
-    if tarif:
-        return tarif.name
-    addition_repository = AdditionRepository()
-    return addition_repository.get_addition_by_id(service_id).name
 
 class CommonService:
     def __init__(self, service_repository: ServiceRepository = Depends(ServiceRepository),
@@ -41,3 +34,14 @@ class CommonService:
                 result[service_id] = self.addition_repository.get_addition_duration(service_id)
         return result
 
+    def get_service_name(self, service_id: int):
+        tarif = self.tarif_repository.get_tarif_by_id(service_id)
+        if tarif:
+            return tarif.name
+        return self.addition_repository.get_addition_by_id(service_id).name
+
+    def get_service_amount(self, service_id: int):
+        tarif = self.tarif_repository.get_tarif_by_id(service_id)
+        if tarif:
+            return 1
+        return self.addition_repository.get_addition_by_id(service_id).amount

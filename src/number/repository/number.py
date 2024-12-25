@@ -41,7 +41,7 @@ class NumberRepository:
         return self.session.query(PhoneNumber).filter(PhoneNumber.id == number_id).first().balance
 
     def get_service_by_activated(self, activated_id: int):
-        return self.session.query(Activated).filter_by(id=activated_id).service_id
+        return self.session.query(Activated).filter_by(id=activated_id).first().service_id
 
     def get_number_by_id(self, number_id: int):
         return self.session.query(PhoneNumber).filter_by(id=number_id).first()

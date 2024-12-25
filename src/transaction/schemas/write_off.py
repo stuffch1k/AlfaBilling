@@ -11,3 +11,9 @@ class ReadSchema(BaseModel):
     activated_id: int
     price: float
     date: datetime
+
+class FullReadSchema(BaseModel):
+    name: str
+    date: datetime
+    amount: float
+    price: float

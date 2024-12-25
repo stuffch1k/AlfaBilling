@@ -3,12 +3,12 @@ from fastapi import APIRouter, Depends
 from src.auth.permissions import permissions
 from src.number.services.activated import ActivatedService
 from src.service.services.common_service import CommonService
-from src.transaction.schemas.write_off import DateFilterSchema, ReadSchema
+from src.transaction.schemas.write_off import DateFilterSchema, FullReadSchema
 from src.transaction.services.write_off import WriteOffService
 
 write_off_router = APIRouter(tags=["WriteOff"])
 
-@write_off_router.post("", response_model=list[ReadSchema])
+@write_off_router.post("", response_model=list[FullReadSchema])
 def get_write_off(body: DateFilterSchema, service: WriteOffService = Depends(),
                   user = Depends(permissions.allowAll)):
     """

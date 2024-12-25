@@ -8,6 +8,9 @@ class ReadSchema(BaseModel):
     amount: float
     date: datetime
 
+class FullReadSchema(ReadSchema):
+    name: str = Field(default='Пополнение')
+
 class CreateSchema(ReadSchema):
     number_id: int
     date: datetime = Field(default=datetime.today())
