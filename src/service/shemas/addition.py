@@ -21,4 +21,7 @@ class UpdateSchema(BaseModel):
 class FullReadSchema(CreateSchema):
     pass
 
+class AdditionReadSchema(ShortReadSchema):
+    service_id: int
+
 

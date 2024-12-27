@@ -19,10 +19,13 @@ def get_addition_list(service: AdditionService = Depends(),
                       size: int = Query(10, ge=1, le=50)):
     return service.get_addition_list(page, size)
 
-@addition_router.get('/category', response_model=list[ShortReadSchema])
+@addition_router.get('/category', response_model=list[AdditionReadSchema])
 def get_categorial_additions(category_id: int,
                              service: AdditionService = Depends(),
                              user = Depends(permissions.allowAll)):
+    """
+    Получение списка услуг в категории
+    """
     return service.get_categorial_list(category_id)
 
 @addition_router.get('/{addition_id}', response_model=FullReadSchema)
