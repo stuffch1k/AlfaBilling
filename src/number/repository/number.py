@@ -71,3 +71,8 @@ class NumberRepository:
 
     def get_number_by_str_representation(self, number: str):
         return self.session.query(PhoneNumber).filter(PhoneNumber.phone_number == number).first()
+
+    def get_number_by_substring(self, substr: str):
+        search_string = "%{}%".format(substr)
+        return self.session.query(PhoneNumber)\
+            .filter(PhoneNumber.phone_number.like(search_string)).all()

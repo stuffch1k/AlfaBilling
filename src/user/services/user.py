@@ -1,11 +1,12 @@
 from fastapi import Depends, HTTPException
 from starlette import status
 
+from src.auth.schemas.models import Client
 from src.number.schemas.models import PhoneNumber
 from src.number.services.number import NumberService
 
 from src.auth.schemas.client import ClientSchema
-from src.user.schemas.client import ClientFullSchema, ClientInfoSchema, ClientShortSchema
+from src.user.schemas.client import *
 from src.auth.schemas.operator import OperatorSchema
 from src.auth.services.auth import AuthService
 from src.user.repository.user import UserRepository
@@ -79,3 +80,38 @@ class UserService:
         client_schema.balance = balance
         client_schema.tarif_name = _tarif_name
         return client_schema
+
+    def get_filtered_clients(self, body: ClientFilterSchema):
+        numbers = []
+        clients = []
+        result = []
+        _surname = ''
+        _phone_number = ''
+        _name = ''
+        _patronymic = ''
+
+        if body.phone_number:
+            # если фильтр-номер, клеим юзеров
+            _phone_number = body.phone_number.lower()
+            numbers.extend(self.number_service.number_repository
+                           .get_number_by_substring(_phone_number))
+            for number in numbers:
+                client_schema = self.create_short_client_schema(number)
+                result.append(client_schema)
+            return result
+        if body.surname or body.name or body.patronymic:
+            # если фильтр фио
+            if body.surname:
+                _surname = body.surname.capitalize()
+            if body.name:
+                _name = body.name.capitalize()
+            if body.patronymic:
+                _patronymic = body.patronymic.capitalize()
+            clients.extend(self.user_repository
+                           .get_clients_by_fio_substring(_surname, _name, _patronymic))
+            for client in clients:
+                numbers = client.numbers
+                result = [self.create_short_client_schema(number) for number in numbers]
+            return result
+
+

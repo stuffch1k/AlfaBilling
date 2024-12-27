@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, ConfigDict
 
 from src.number.schemas.number import NumberInfoSchema
@@ -24,3 +26,10 @@ class ClientShortSchema(ClientInfoSchema):
 class ClientFullSchema(BaseModel):
     client_info: ClientInfoSchema
     number_info: NumberInfoSchema
+
+class ClientFilterSchema(BaseModel):
+    name: Optional[str] = None
+    surname: Optional[str] = None
+    patronymic: Optional[str] = None
+    phone_number: Optional[str] = None
+
