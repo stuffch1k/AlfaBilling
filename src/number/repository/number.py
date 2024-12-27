@@ -23,7 +23,8 @@ class NumberRepository:
         return activated.id
 
     def activated_list(self, _number_id: int) -> tuple[int]:
-        return self.session.query(Activated.service_id).filter_by(number_id=_number_id).all()
+        return self.session.query(Activated.service_id).filter(Activated.number_id == _number_id
+                                                               ,Activated.expiration_date.isnot(None)).all()
 
     def decrease_balance(self, number_id: int, price: float):
         balance = self.get_balance(number_id)
@@ -57,15 +58,16 @@ class NumberRepository:
         return query.all()
 
     def get_activated_by_id(self, activated_id) -> Activated | None:
-        return self.session.query(Activated).get(activated_id)
-
-    def get_activated_by_id_and_number(self, activated_id, number_id) -> Activated | None:
-        return self.session.query(Activated).filter(Activated.id == activated_id
-                                                    and Activated.number_id == number_id).first()
+        activated = self.session.query(Activated).get(activated_id)
+        if not activated:
+            return None
+        if activated.expiration_date is None:
+            return None
+        return activated
 
     def get_all_activated(self, number_id) -> list[Activated]:
-        return self.session.query(Activated).filter(Activated.number_id == number_id).all()
+        return self.session.query(Activated).filter(Activated.number_id == number_id
+                                                    ,Activated.expiration_date.isnot(None)).all()
 
     def get_number_by_str_representation(self, number: str):
         return self.session.query(PhoneNumber).filter(PhoneNumber.phone_number == number).first()
-
