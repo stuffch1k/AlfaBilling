@@ -40,3 +40,8 @@ class DeactivateServiceSchema(BaseModel):
     activated_id: int
     phone_number: str
 
+
+class ChangeTarifSchema(BaseModel):
+    tarif_id: int
+    phone_number: str
+

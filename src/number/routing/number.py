@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from src.auth.permissions import permissions
-from src.number.schemas.number import AddServiceSchema, DeactivateServiceSchema, ChoiceSchema
+from src.number.schemas.number import AddServiceSchema, DeactivateServiceSchema, ChoiceSchema, ChangeTarifSchema
 from src.number.services.activated import ActivatedService
 from src.number.services.number import NumberService
 from src.number.services.rest import RestService
@@ -50,6 +50,16 @@ def get_service_id(ids: list[int],
     """
     return service.get_services(ids)
 
+
+@activated_router.post("/change")
+def change_tarif(schema: ChangeTarifSchema,
+                 service: NumberService = Depends()):
+    """
+    Смена тарифа
+    """
+    return service.change_tarif(schema)
+
+
 @number_router.get("/rest")
 def get_rests(number: str,
                 service: NumberService = Depends(),
@@ -66,7 +76,6 @@ def decrease_rests(choice: ChoiceSchema, service: RestService = Depends()):
         - all = DEFAULT
     """
     return service.decrease_rests(choice)
-
 
 
 @number_router.get("/{number_id}/activated")

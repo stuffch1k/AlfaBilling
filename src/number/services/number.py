@@ -6,7 +6,7 @@ from src.number.schemas.activated import ActivatedServiceSchema, ActivatedTarifS
 from src.number.repository.number import NumberRepository
 from src.number.repository.rest import RestRepository
 from src.number.schemas.models import Activated, Rest, PhoneNumber
-from src.number.schemas.number import AddServiceSchema, DeactivateServiceSchema, NumberInfoSchema
+from src.number.schemas.number import AddServiceSchema, DeactivateServiceSchema, NumberInfoSchema, ChangeTarifSchema
 from src.service.repository.addition import AdditionRepository
 from src.service.repository.addition_category import CategoryRepository
 from src.service.repository.common_service import ServiceRepository
@@ -154,12 +154,31 @@ class NumberService:
             rest.number_id = number_id
         self.rest_repository.add_or_update(rest)
 
+    def change_tarif(self, body: ChangeTarifSchema):
+        if not self.existed_number(body.phone_number):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"Number {body.phone_number} doesn't exist")
+        if not self.is_tarif(body.tarif_id):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"There is no tarif with id {body.tarif_id}")
+        number_id = self.get_number_id(body.phone_number)
+        activated_tarif = self.get_activated_services(number_id)[0]
+        if not activated_tarif:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"There is no activated tarif on number {body.phone_number}")
+        if activated_tarif.service.id == body.tarif_id:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail=f"Tarif with id {body.tarif_id} already on number {body.phone_number}")
+        activated = self.number_repository.get_activated_by_id(activated_tarif.activated_id)
+        self.number_repository.deactivate_service(activated)
+        self.add_service(AddServiceSchema(service_id=body.tarif_id, phone_number=body.phone_number))
+
     def deactivate_service(self, body: DeactivateServiceSchema):
         if not self.existed_number(body.phone_number):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail=f"Number {body.phone_number} doesn't exist")
-        number_id = self.number_repository.get_number_id(body.phone_number)
-        activated = self.number_repository.get_activated_by_id_and_number(body.activated_id, number_id)
+        # number_id = self.number_repository.get_number_id(body.phone_number)
+        activated = self.number_repository.get_activated_by_id(body.activated_id)
         if not activated:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail=f"There is no activated service with id {body.activated_id} "
