@@ -135,21 +135,21 @@ class NumberService:
                 # исходя из категории плюсуем, тк пришло amount
                 case "internet":
                     rest.internet = body.amount + rests.internet if rests is not None else 0
-                    rest.minute = 0
-                    rest.sms = 0
+                    rest.minute = rests.minute if rests is not None else 0
+                    rest.sms = rests.sms if rests is not None else 0
                 case "minute":
                     rest.minute = body.amount + rests.minute if rests is not None else 0
-                    rest.internet = 0
-                    rest.sms = 0
+                    rest.internet = rests.internet if rests is not None else 0
+                    rest.sms = rests.sms if rests is not None else 0
                 case "sms":
                     rest.sms = body.amount + rests.sms if rests is not None else 0
-                    rest.internet = 0
-                    rest.minute = 0
+                    rest.internet = rests.internet if rests is not None else 0
+                    rest.minute = rests.minute if rests is not None else 0
                 case _:
                     # в случае различных роумингов, подписок, надо делать отдельный флаг
-                    rest.sms = 0
-                    rest.internet = 0
-                    rest.minute = 0
+                    rest.sms = rests.sms if rests is not None else 0
+                    rest.internet = rests.internet if rests is not None else 0
+                    rest.minute = rests.minute if rests is not None else 0
             rest.is_unlimited_internet = body.is_unlimited
             rest.number_id = number_id
         self.rest_repository.add_or_update(rest)
