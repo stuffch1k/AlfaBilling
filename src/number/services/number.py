@@ -53,17 +53,19 @@ class NumberService:
             raise HTTPException(status_code=500,
                                 detail=f"Number {body.phone_number} already has active tarif."
                                        f"Wanna change it?")
-
-        number_id = self.get_number_id(body.phone_number)
+        number = self.get_number_by_str_representation(body.phone_number)
+        number_id = number.id
         price = 0
         # идем добавлять то, что подключили к остаткам
         if is_tarif:
             _tarif = self.tarif_repository.get_tarif_by_id(body.service_id)
+            self.check_balance(number, _tarif)
             self.add_rest(number_id,
                           _tarif)
             price = _tarif.price
         else:
             _addition = self.addition_repository.get_addition_by_id(body.service_id)
+            self.check_balance(number, _addition)
             self.add_rest(number_id,
                           _addition)
             price = _addition.price
@@ -72,6 +74,11 @@ class NumberService:
 
         write_off_service = WriteOffService(self.number_repository, self.write_off_repository)
         write_off_service.create_write_off(number_id, activated_id, price)
+
+    def check_balance(self, number: PhoneNumber, service: Tarif | Addition):
+        if number.balance < service.price:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail=f"На балансе недостаточно средств для подключения тарифа/услуги")
 
     def get_rests(self, number: str):
         if not self.existed_number(number):
