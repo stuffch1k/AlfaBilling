@@ -21,6 +21,10 @@ class UpdateSchema(BaseModel):
 class ShortReadSchema(UpdateSchema):
     name: str
 
+class TarifReadSchema(UpdateSchema):
+    service_id: int
+    name: str
+
 class FullReadSchema(CreateSchema):
     pass
 

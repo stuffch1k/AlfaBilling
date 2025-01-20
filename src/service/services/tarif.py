@@ -27,7 +27,7 @@ class TarifService:
         tarif = Tarif(service_id=pk, **tarif.dict())
         self.tarif_repository.create_tarif(tarif)
 
-    def get_tarif_list(self) -> list[ShortReadSchema]:
+    def get_tarif_list(self) -> list[TarifReadSchema]:
         '''
         Возвращает перечень тарифов.
         На морде планируется отображение карточек с выжимкой информации
