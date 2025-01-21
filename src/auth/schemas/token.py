@@ -21,6 +21,8 @@ class RefreshTokenSchema(TokenSchema):
     expires_in: int = settings.jwt_refresh_token_expires
     token_type: str = 'refresh'
 
+class RefreshRequestSchema(BaseModel):
+    refresh_token: str
 
 class TokenPairSchema(BaseModel):
     """

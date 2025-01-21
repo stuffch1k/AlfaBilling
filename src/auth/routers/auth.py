@@ -6,7 +6,7 @@ from starlette.responses import Response
 from ..permissions import permissions
 from ..schemas.client import ClientSchema, ClientCreateSchema, ClientLoginSchema
 from ..schemas.operator import OperatorLoginSchema, OperatorCreateSchema, OperatorSchema
-from ..schemas.token import TokenPairSchema
+from ..schemas.token import TokenPairSchema, RefreshRequestSchema
 from ..services.auth import AuthService
 from ..services.token import TokenPairService
 
@@ -26,33 +26,29 @@ def register(payload: ClientCreateSchema | OperatorCreateSchema,
 
 @auth_router.post('/login')
 def login(payload: ClientLoginSchema | OperatorLoginSchema,
-          response: Response,
           service: AuthService = Depends(),
           token_service: TokenPairService = Depends()) -> dict:
     authenticated_user: OperatorSchema | ClientSchema = service.authenticate_user(payload)
     token_pair: TokenPairSchema = token_service.generate_token_pair(authenticated_user)
-    response.set_cookie(key='refresh_token', value=token_pair.refresh_token,
-                        max_age=3 * 24 * 60 * 60, httponly=True)
     return {"user": token_pair.user,
-            "access_token": token_pair.access_token}
+            "access_token": token_pair.access_token,
+            "refresh_token": token_pair.refresh_token}
 
 
 @token_router.get('/logout')
 def logout(response: Response) -> dict:
-    response.delete_cookie(key='refresh_token')
+    # response.delete_cookie(key='refresh_token')
     return {"detail": "Successfully logged out"}
 
 
-@token_router.get('/refresh')
-def refresh(request: Request,
-            response: Response,
+@token_router.post('/refresh')
+def refresh(payload: RefreshRequestSchema,
             token_service: TokenPairService = Depends()) -> dict:
-    refresh_token: str = request.cookies.get('refresh_token')
+    refresh_token: str = payload.refresh_token
     if not refresh_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Пользователь не авторизован")
     new_token_pair: TokenPairSchema = token_service.refresh_token_pair(refresh_token)
-    response.set_cookie(key='refresh_token', value=new_token_pair.refresh_token,
-                        max_age=3 * 24 * 60 * 60, httponly=True)
     return {"user": new_token_pair.user,
-            "access_token": new_token_pair.access_token}
+            "access_token": new_token_pair.access_token,
+            "refresh_token": new_token_pair.refresh_token}
